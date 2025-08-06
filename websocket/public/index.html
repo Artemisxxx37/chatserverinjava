@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>WebSocket Chat Client</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: auto; }
+    #chat { height: 300px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
+    input, button { padding: 8px; margin: 5px 0; width: 100%; }
+  </style>
+</head>
+<body>
+  <h2>💬 WebSocket Chat</h2>
+  <input id="username" placeholder="Enter username" />
+  <button onclick="connect()">Connect</button>
+  <div id="chat"></div>
+  <input id="message" placeholder="Type a message..." />
+  <button onclick="sendMessage()">Send</button>
+
+  <script>
+    let socket;
+
+    function connect() {
+      const username = document.getElementById("username").value.trim();
+      if (!username) return alert("Please enter a username");
+
+      // Remplace 'your-app-name' par le nom de ton service Render
+      const url = "wss://your-app-name.onrender.com";
+
+      socket = new WebSocket(url);
+
+      socket.onopen = () => {
+        socket.send(username);
+        log("✅ Connected as " + username);
+      };
+
+      socket.onmessage = (event) => {
+        log(event.data);
+      };
+
+      socket.onclose = () => {
+        log("🔌 Disconnected");
+      };
+
+      socket.onerror = (err) => {
+        log("❌ Error: " + err.message);
+      };
+    }
+
+    function sendMessage() {
+      const msg = document.getElementById("message").value;
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(msg);
+        document.getElementById("message").value = "";
+      } else {
+        log("⚠️ Not connected");
+      }
+    }
+
+    function log(message) {
+      const chat = document.getElementById("chat");
+      chat.innerHTML += `<div>${message}</div>`;
+      chat.scrollTop = chat.scrollHeight;
+    }
+  </script>
+</body>
+</html>
